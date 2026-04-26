@@ -153,10 +153,22 @@
       animation: pulse 2s ease-in-out infinite;
     }
 
- .project-logo-svg {
-        --logo-size: 80px; /* Slightly smaller for mobile screens */
-        margin-bottom: 15px;
-       }
+.project-logo-svg {
+    width: 100px;         /* Size of the logo */
+    height: auto;
+    display: block;
+    margin: 0 auto 20px; /* Centers it and adds space above the subtitle */
+    width: 171px;
+      height: 158px;
+      border-radius: 40px;
+      background: linear-gradient(145deg, #2196e8 0%, #1ab3c8 55%, #0ecfc0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(14, 180, 180, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
 
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
