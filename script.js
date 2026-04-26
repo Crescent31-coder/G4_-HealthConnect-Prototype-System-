@@ -43,20 +43,3 @@
         a.style.background = a.getAttribute('href') === '#' + current ? 'var(--surface2)' : '';
       });
     });
-
-    const menuToggle = document.querySelector('.menu-toggle');
-    const navLinks = document.querySelector('.nav-links');
-
-    menuToggle.addEventListener('click', () => {
-        // Toggle the classes to trigger CSS transitions
-        navLinks.classList.toggle('mobile-active');
-        menuToggle.classList.toggle('is-active');
-    });
-
-    // Close menu when a link is clicked
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            navLinks.classList.remove('mobile-active');
-            menuToggle.classList.remove('is-active');
-        });
-    });             
