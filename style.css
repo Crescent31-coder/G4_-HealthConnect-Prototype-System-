@@ -1061,5 +1061,70 @@
   .navbar, #scrollTop, .hero-bg, .hero-grid { display: none; }
   .card, .member-card, .finding-card { border: 1px solid #ccc; page-break-inside: avoid; }
 }
+      /* ── MOBILE MENU LOGIC ── */
+
+/* Hide toggle on desktop */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1100;
+}
+
+.menu-toggle .bar {
+    width: 25px;
+    height: 2px;
+    background-color: var(--white);
+    transition: 0.3s;
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex; /* Show toggle on mobile */
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 64px; /* Height of navbar */
+        left: 0;
+        width: 100%;
+        height: 0; /* Hidden by default */
+        background: rgba(11, 15, 26, 0.95);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow: hidden;
+        transition: height 0.4s ease-in-out;
+        border-bottom: 1px solid var(--border);
+        padding-top: 0;
+    }
+
+    /* When the menu is open */
+    .nav-links.mobile-active {
+        height: 300px; /* Adjust based on number of links */
+        padding-top: 2rem;
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+        margin: 0.5rem 0;
+    }
+
+    .nav-links a {
+        font-size: 1.1rem;
+        display: block;
+        padding: 1rem;
+    }
+
+    /* Hamburger Animation to 'X' */
+    .menu-toggle.is-active .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.is-active .bar:nth-child(2) { opacity: 0; }
+    .menu-toggle.is-active .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+}
           
  
