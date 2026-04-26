@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCI Final Project | Web Reporting Site</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --surface: #111827;
+      --surface2: #1a2234;
+      --border: #1e2d45;
+      --accent: #3b82f6;
+      --accent2: #06b6d4;
+      --accent3: #8b5cf6;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --white: #f8fafc;
+      --good: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      background: rgba(11, 15, 26, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--white);
+      letter-spacing: -0.03em;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--soft);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-links a:hover {
+      color: var(--white);
+      background: var(--surface2);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 6rem 2rem 4rem;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, rgba(59,130,246,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 70%, rgba(139,92,246,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 50% 10%, rgba(6,182,212,0.08) 0%, transparent 60%);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 860px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      color: var(--soft);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      background: var(--surface);
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    .project-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      border-radius: 20px;
+      margin: 0 auto 1.5rem;
+      display: block;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 12px;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--soft);
+      font-weight: 300;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-blue { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+    .tag-purple { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.25); }
+    .tag-cyan { background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.25); }
+
+    /* ── SECTION BASE ── */
+    .section {
+      padding: 6rem 2rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-desc {
+      color: var(--soft);
+      font-size: 0.95rem;
+      max-width: 520px;
+      margin-bottom: 3rem;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0;
+    }
+
+    /* ── MEMBERS ── */
+    #members { padding: 5rem 2rem; background: var(--surface); }
+
+    .members-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+
+    .member-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .member-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .member-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .member-card:hover::before { opacity: 1; }
+
+    .member-card img {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      margin-bottom: 0.75rem;
+      background: var(--surface2);
+    }
+
+    .member-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--white);
+      margin-bottom: 0.2rem;
+    }
+
+    .member-role {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      transition: border-color 0.3s;
+    }
+
+    .card:hover { border-color: var(--accent); }
+
+    .card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+
+    .card p, .card li {
+      font-size: 0.9rem;
+      color: var(--soft);
+      line-height: 1.7;
+    }
+
+    .card ul { padding-left: 1.2rem; }
+    .card li { margin-bottom: 0.4rem; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ── DATA GATHERING ── */
+    #data { background: var(--bg); }
+
+    .instrument-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 0.6rem;
+      background: var(--bg);
+      transition: all 0.2s;
+    }
+
+    .instrument-item:hover { border-color: var(--accent); background: var(--surface2); }
+
+    .instrument-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .icon-blue { background: rgba(59,130,246,0.15); }
+    .icon-purple { background: rgba(139,92,246,0.15); }
+    .icon-cyan { background: rgba(6,182,212,0.15); }
+    .icon-green { background: rgba(16,185,129,0.15); }
+
+    .instrument-label { font-size: 0.88rem; color: var(--text); font-weight: 500; }
+    .instrument-sub { font-size: 0.75rem; color: var(--muted); }
+
+    .instrument-link {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 5px;
+      transition: all 0.2s;
+    }
+
+    .instrument-link:hover { background: rgba(59,130,246,0.15); }
+
+    /* RESPONDENT TABLE */
+    .respondent-table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead {
+      background: var(--surface2);
+    }
+
+    th {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.8rem 1rem;
+      color: var(--soft);
+      border-bottom: 1px solid rgba(30, 45, 69, 0.5);
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(59,130,246,0.04); }
+
+    /* GALLERY */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .gallery-item {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── RESULTS ── */
+    #results { background: var(--surface); }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* HEURISTIC FINDINGS */
+    .finding-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      background: var(--bg);
+    }
+
+    .finding-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .finding-header:hover { background: var(--surface2); }
+
+    .severity-badge {
+      padding: 0.2rem 0.6rem;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .sev-high { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+    .sev-med  { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+    .sev-low  { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+
+    .finding-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--white);
+      flex: 1;
+    }
+
+    .finding-heuristic {
+      font-size: 0.75rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .finding-body {
+      padding: 0 1.25rem 1.25rem;
+      display: none;
+    }
+
+    .finding-body.open { display: block; }
+
+    .finding-body p {
+      font-size: 0.85rem;
+      color: var(--soft);
+      margin-bottom: 0.75rem;
+    }
+
+    .rec-box {
+      background: rgba(59,130,246,0.08);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.83rem;
+      color: var(--soft);
+    }
+
+    .rec-box strong { color: var(--accent); }
+
+    /* PROGRESS BARS */
+    .progress-item {
+      margin-bottom: 1rem;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .progress-label { color: var(--soft); }
+    .progress-val { color: var(--white); font-weight: 600; }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 1s ease;
+    }
+
+    /* PDF BUTTON */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: white;
+    }
+
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--soft);
+    }
+
+    .btn-outline:hover { border-color: var(--accent); color: var(--white); }
+
+    .btn-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    /* ── WALKTHROUGH ── */
+    #walkthrough { background: var(--bg); }
+
+    .walkthrough-steps {
+      position: relative;
+      padding-left: 2.5rem;
+      border-left: 2px solid var(--border);
+      margin-top: 2rem;
+    }
+
+    .step {
+      position: relative;
+      margin-bottom: 2.5rem;
+    }
+
+    .step-dot {
+      position: absolute;
+      left: -2.75rem;
+      top: 0.1rem;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    .step-number {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.35rem;
+    }
+
+    .step h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .step p { font-size: 0.88rem; color: var(--soft); }
+
+    .screen-thumb {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+
+    .screen-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── REFLECTIONS ── */
+    #reflections { background: var(--surface); }
+
+    .reflection-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reflection-card::before {
+      content: '"';
+      position: absolute;
+      top: -0.5rem; left: 1rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 6rem;
+      color: var(--border);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .reflection-text {
+      font-size: 0.88rem;
+      color: var(--soft);
+      line-height: 1.8;
+      font-style: italic;
+      position: relative;
+      padding-top: 1.5rem;
+    }
+
+    .reflection-author {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .reflection-author span { color: var(--muted); font-weight: 400; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    footer strong { color: var(--soft); }
+
+    /* ── SCROLL TOP ── */
+    #scrollTop {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--soft);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 500;
+    }
+
+    #scrollTop:hover { border-color: var(--accent); color: var(--white); transform: translateY(-2px); }
+    #scrollTop.visible { display: flex; }
+
+    /* CONSENT FORM ACCORDION */
+    .accordion {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .accordion-header {
+      width: 100%;
+      background: var(--surface2);
+      border: none;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      color: var(--white);
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+    }
+
+    .accordion-header:hover { background: var(--border); }
+
+    .accordion-chevron {
+      transition: transform 0.3s;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .accordion.open .accordion-chevron { transform: rotate(180deg); }
+
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      background: var(--bg);
+    }
+
+    .accordion.open .accordion-body { max-height: 600px; }
+
+    .accordion-inner {
+      padding: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--soft);
+      line-height: 1.8;
+    }
+
+    .accordion-inner h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .accordion-inner p { margin-bottom: 0.75rem; }
+    .accordion-inner ul { padding-left: 1.2rem; }
+    .accordion-inner li { margin-bottom: 0.3rem; }
+
+    /* HEURISTIC GRID */
+    .heuristic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1.5rem;
+    }
+
+    .heuristic-chip {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem;
+      background: var(--bg);
+      transition: all 0.2s;
+    }
+
+    .heuristic-chip:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+    .heuristic-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .heuristic-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--soft);
+      line-height: 1.4;
+    }
+
+    /* VIDEO PLACEHOLDER */
+    .video-placeholder {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      aspect-ratio: 16/9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--muted);
+      margin-top: 1.5rem;
+    }
+
+    .play-btn {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .play-btn:hover { transform: scale(1.08); }
+
+    /* SECTION ALTERNATING */
+    .alt-bg { background: var(--surface) !important; }
+
+    /* Scrolled nav indicator */
+    .nav-pill {
+      display: none;
+      position: fixed;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.3rem 1rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      z-index: 999;
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { gap: 0; }
+      .nav-links a { padding: 0.3rem 0.45rem; font-size: 0.72rem; }
+      .hero h1 { font-size: 2rem; }
+      .members-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <span class="logo">Group <span>4</span> · HCI Report</span>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#data">Data Gathering</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#walkthrough">Walkthrough</a></li>
+        <li><a href="#reflections">Reflections</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       HOME PAGE
+  ═══════════════════════════════════════ -->
+  <section id="home" class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        HCI2 · Partido State University · 2024
+      </div>
+      <img src="logo.png" alt="Prototype Logo" class="project-logo">
+      <h1>
+        Usability Evaluation<br>
+        <span class="highlight">Web Reporting Site</span>
+      </h1>
+      <p class="subtitle">
+        A comprehensive documentation platform presenting the results of our<br>
+        heuristic evaluation and usability testing for our midterm prototype.
+      </p>
+      <div class="hero-tags">
+        <span class="tag tag-blue">Heuristic Evaluation</span>
+        <span class="tag tag-purple">Usability Testing</span>
+        <span class="tag tag-cyan">Jakob Nielsen's 10 Heuristics</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MEMBERS -->
+  <section id="members" class="fade-in">
+    <div class="container">
+      <p class="section-eyebrow">The Team</p>
+      <h2 class="section-title">Group Members</h2>
+      <p class="section-desc">Meet the students behind this usability evaluation project.</p>
+      <div class="members-grid">
+        <div class="member-card">
+          <img src="1.jpg" alt="John Michael Belmonte">
+          <div class="member-name">John Michael Belmonte</div>
+          <div class="member-role">Lead Evaluator</div>
+        </div>
+        <div class="member-card">
+          <img src="2.jpg" alt="Jessica Vipinoso">
+          <div class="member-name">Jessica Vipinoso</div>
+          <div class="member-role">UX Researcher</div>
+        </div>
+        <div class="member-card">
+          <img src="3.jpg" alt="Jommel Pahuwayan">
+          <div class="member-name">Jommel Pahuwayan</div>
+          <div class="member-role">Frontend Dev</div>
+        </div>
+        <div class="member-card">
+          <img src="4.jpg" alt="Earl Francis Salvo">
+          <div class="member-name">Earl Francis Salvo</div>
+          <div class="member-role">Data Analyst</div>
+        </div>
+        <div class="member-card">
+          <img src="5.jpg" alt="Jezel Dominguez">
+          <div class="member-name">Jezel Dominguez</div>
+          <div class="member-role">Documentation</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       DATA GATHERING PAGE
+  ═══════════════════════════════════════ -->
+  <section id="data" class="section fade-in">
+    <div class="container">
+      <p class="section-eyebrow">Data Gathering</p>
+      <h2 class="section-title">Instruments & Documentation</h2>
+      <p class="section-desc">All consent forms, respondent profiles, survey instruments, and evidence gathered during testing.</p>
+
+      <!-- CONSENT FORM -->
+      <div class="accordion" id="consentAccordion">
+        <button class="accordion-header" onclick="toggleAccordion('consentAccordion')">
+          <span>📋 &nbsp;Consent Form</span>
+          <span class="accordion-chevron">▼</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <h4>Informed Consent for Usability Testing</h4>
+            <p>You are being invited to participate in a usability testing study conducted by students of Partido State University as part of their HCI2 course requirement. Your participation is voluntary and you may withdraw at any time without penalty.</p>
+            <h4>Purpose of the Study</h4>
+            <p>This study aims to evaluate the usability of our prototype by observing how users interact with the system and gathering feedback on its ease of use, efficiency, and overall experience.</p>
+            <h4>What You Will Do</h4>
+            <ul>
+              <li>Complete a set of tasks using the provided prototype</li>
+              <li>Answer a post-test questionnaire (5–10 minutes)</li>
+              <li>Allow your interactions to be observed and noted by evaluators</li>
+            </ul>
+            <h4>Confidentiality</h4>
+            <p>All collected data will be anonymized and used solely for academic purposes. Your personal information will not be shared publicly.</p>
+            <p><em>By participating in this study, you acknowledge that you have read and understood the above information and agree to take part voluntarily.</em></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESPONDENT PROFILES -->
+      <div class="accordion" id="respondentAccordion">
+        <button class="accordion-header" onclick="toggleAccordion('respondentAccordion')">
+          <span>👥 &nbsp;Respondent Profiles</span>
+          <span class="accordion-chevron">▼</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <p>A total of <strong style="color:var(--white)">5 participants</strong> took part in the usability testing sessions. The table below summarizes their profiles.</p>
+            <div class="respondent-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Age Group</th>
+                    <th>Gender</th>
+                    <th>Tech Proficiency</th>
+                    <th>Prior Experience</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>P1</td><td>18–24</td><td>Male</td><td>Intermediate</td><td>None</td></tr>
+                  <tr><td>P2</td><td>18–24</td><td>Female</td><td>Beginner</td><td>None</td></tr>
+                  <tr><td>P3</td><td>25–34</td><td>Male</td><td>Advanced</td><td>Similar systems</td></tr>
+                  <tr><td>P4</td><td>18–24</td><td>Female</td><td>Intermediate</td><td>None</td></tr>
+                  <tr><td>P5</td><td>18–24</td><td>Male</td><td>Beginner</td><td>None</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SURVEY INSTRUMENTS -->
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:var(--white);margin:2rem 0 1rem;font-size:1.1rem;">Survey Instruments</h3>
+      <div class="grid-2">
+        <div class="card">
+          <h3>🔍 Heuristic Evaluation Workbook</h3>
+          <p>Each group member independently evaluated the prototype using Jakob Nielsen's 10 Usability Heuristics. Individual workbooks were completed and aggregated for analysis.</p>
+          <div style="margin-top:1rem;">
+            <div class="instrument-item">
+              <div class="instrument-icon icon-blue">📄</div>
+              <div>
+                <div class="instrument-label">Belmonte — HE Workbook</div>
+                <div class="instrument-sub">Completed evaluation · 10 heuristics</div>
+              </div>
+              <a href="he-workbook-belmonte.pdf" class="instrument-link" target="_blank">View PDF</a>
+            </div>
+            <div class="instrument-item">
+              <div class="instrument-icon icon-purple">📄</div>
+              <div>
+                <div class="instrument-label">Vipinoso — HE Workbook</div>
+                <div class="instrument-sub">Completed evaluation · 10 heuristics</div>
+              </div>
+              <a href="he-workbook-vipinoso.pdf" class="instrument-link" target="_blank">View PDF</a>
+            </div>
+            <div class="instrument-item">
+              <div class="instrument-icon icon-cyan">📄</div>
+              <div>
+                <div class="instrument-label">Pahuwayan — HE Workbook</div>
+                <div class="instrument-sub">Completed evaluation · 10 heuristics</div>
+              </div>
+              <a href="he-workbook-pahuwayan.pdf" class="instrument-link" target="_blank">View PDF</a>
+            </div>
+            <div class="instrument-item">
+              <div class="instrument-icon icon-green">📄</div>
+              <div>
+                <div class="instrument-label">Salvo — HE Workbook</div>
+                <div class="instrument-sub">Completed evaluation · 10 heuristics</div>
+              </div>
+              <a href="he-workbook-salvo.pdf" class="instrument-link" target="_blank">View PDF</a>
+            </div>
+            <div class="instrument-item">
+              <div class="instrument-icon icon-blue">📄</div>
+              <div>
+                <div class="instrument-label">Dominguez — HE Workbook</div>
+                <div class="instrument-sub">Completed evaluation · 10 heuristics</div>
+              </div>
+              <a href="he-workbook-dominguez.pdf" class="instrument-link" target="_blank">View PDF</a>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>📊 Usability Testing Survey</h3>
+          <p>Participants completed a post-test survey covering task success rates, perceived ease of use, satisfaction ratings, and open-ended feedback.</p>
+          <div style="margin-top:1rem;">
+            <div class="instrument-item">
+              <div class="instrument-icon icon-blue">📋</div>
+              <div>
+                <div class="instrument-label">Task Completion Form</div>
+                <div class="instrument-sub">5 tasks · binary success metric</div>
+              </div>
+              <a href="task-form.pdf" class="instrument-link" target="_blank">View PDF</a>
+            </div>
+            <div class="instrument-item">
+              <div class="instrument-icon icon-purple">⭐</div>
+              <div>
+                <div class="instrument-label">Satisfaction Questionnaire</div>
+                <div class="instrument-sub">Likert scale · 15 items</div>
+              </div>
+              <a href="satisfaction-survey.pdf" class="instrument-link" target="_blank">View PDF</a>
+            </div>
+            <div class="instrument-item">
+              <div class="instrument-icon icon-cyan">💬</div>
+              <div>
+                <div class="instrument-label">Think-Aloud Observation Sheet</div>
+                <div class="instrument-sub">Qualitative · observer notes</div>
+              </div>
+              <a href="thinkaloud-sheet.pdf" class="instrument-link" target="_blank">View PDF</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TESTING EVIDENCE / GALLERY -->
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:var(--white);margin:2rem 0 0.5rem;font-size:1.1rem;">Testing Documentation Photos</h3>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.5rem;">Photos taken during the usability testing sessions.</p>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="testing-photo1.jpg" alt="Testing Session 1" onerror="this.style.display='none';this.parentElement.innerHTML='📸 Testing Session 1'">
+        </div>
+        <div class="gallery-item">
+          <img src="testing-photo2.jpg" alt="Testing Session 2" onerror="this.style.display='none';this.parentElement.innerHTML='📸 Testing Session 2'">
+        </div>
+        <div class="gallery-item">
+          <img src="testing-photo3.jpg" alt="Testing Session 3" onerror="this.style.display='none';this.parentElement.innerHTML='📸 Testing Session 3'">
+        </div>
+        <div class="gallery-item">
+          <img src="testing-photo4.jpg" alt="Testing Session 4" onerror="this.style.display='none';this.parentElement.innerHTML='📸 Testing Session 4'">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       RESULTS, DISCUSSION & RECOMMENDATIONS
+  ═══════════════════════════════════════ -->
+  <section id="results" class="section alt-bg fade-in">
+    <div class="container">
+      <p class="section-eyebrow">Results & Analysis</p>
+      <h2 class="section-title">Findings, Discussion & Recommendations</h2>
+      <p class="section-desc">Summary of usability testing outcomes, heuristic issues identified, and design improvement recommendations.</p>
+
+      <!-- STATS -->
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Participants</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Tasks Tested</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">78%</div>
+          <div class="stat-label">Avg Task Success</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">3.8</div>
+          <div class="stat-label">Avg Satisfaction /5</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">9</div>
+          <div class="stat-label">Issues Found</div>
+        </div>
+      </div>
+
+      <!-- TASK SUCCESS RATES -->
+      <div class="grid-2" style="margin-bottom:2rem;">
+        <div class="card">
+          <h3>Task Completion Rates</h3>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Task 1 — [Describe task]</span><span class="progress-val">100%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Task 2 — [Describe task]</span><span class="progress-val">80%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Task 3 — [Describe task]</span><span class="progress-val">60%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Task 4 — [Describe task]</span><span class="progress-val">80%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Task 5 — [Describe task]</span><span class="progress-val">70%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Satisfaction Scores (avg per dimension)</h3>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Ease of Use</span><span class="progress-val">4.0/5</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Visual Design</span><span class="progress-val">3.6/5</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Navigation Clarity</span><span class="progress-val">3.4/5</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:68%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Error Recovery</span><span class="progress-val">3.2/5</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:64%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-meta"><span class="progress-label">Overall Satisfaction</span><span class="progress-val">3.8/5</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:76%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEURISTIC FINDINGS (COLLAPSIBLE) -->
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:var(--white);margin-bottom:1rem;font-size:1.1rem;">Key Usability Issues Identified</h3>
+
+      <div class="finding-card">
+        <div class="finding-header" onclick="toggleFinding(this)">
+          <span class="severity-badge sev-high">High</span>
+          <span class="finding-title">[Issue Title — e.g., Missing error messages on form submission]</span>
+          <span class="finding-heuristic">H9 · Error Prevention</span>
+          <span style="color:var(--muted);font-size:0.8rem;margin-left:0.5rem;">▼</span>
+        </div>
+        <div class="finding-body">
+          <p><strong style="color:var(--white)">Description:</strong> Replace this with a specific description of the usability issue observed. Mention which tasks triggered the issue and how participants responded.</p>
+          <p><strong style="color:var(--white)">Heuristic Violated:</strong> Nielsen Heuristic #9 — Help users recognize, diagnose, and recover from errors. Error messages should be expressed in plain language and suggest a solution.</p>
+          <div class="rec-box">
+            <strong>Recommendation:</strong> Replace this with a concrete design recommendation to fix the issue, referencing Nielsen's heuristic guidance.
+          </div>
+        </div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-header" onclick="toggleFinding(this)">
+          <span class="severity-badge sev-high">High</span>
+          <span class="finding-title">[Issue Title — e.g., Navigation labels are ambiguous]</span>
+          <span class="finding-heuristic">H6 · Recognition</span>
+          <span style="color:var(--muted);font-size:0.8rem;margin-left:0.5rem;">▼</span>
+        </div>
+        <div class="finding-body">
+          <p><strong style="color:var(--white)">Description:</strong> Describe the navigation issue here. Note which participants were confused and what errors or delays it caused.</p>
+          <p><strong style="color:var(--white)">Heuristic Violated:</strong> Nielsen Heuristic #6 — Recognition rather than recall. Minimize the user's memory load; make objects, actions, and options visible.</p>
+          <div class="rec-box">
+            <strong>Recommendation:</strong> Replace with specific UI/UX recommendation — e.g., relabel navigation items, add icons, use breadcrumbs.
+          </div>
+        </div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-header" onclick="toggleFinding(this)">
+          <span class="severity-badge sev-med">Medium</span>
+          <span class="finding-title">[Issue Title — e.g., No confirmation feedback after actions]</span>
+          <span class="finding-heuristic">H1 · Visibility</span>
+          <span style="color:var(--muted);font-size:0.8rem;margin-left:0.5rem;">▼</span>
+        </div>
+        <div class="finding-body">
+          <p><strong style="color:var(--white)">Description:</strong> Describe the feedback issue here. Explain which user actions lacked visual/auditory confirmation and what user behavior resulted.</p>
+          <p><strong style="color:var(--white)">Heuristic Violated:</strong> Nielsen Heuristic #1 — Visibility of system status. The system should keep users informed about what is going on through appropriate feedback.</p>
+          <div class="rec-box">
+            <strong>Recommendation:</strong> Add toast notifications, loading indicators, or success/error banners to give users immediate feedback after every action.
+          </div>
+        </div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-header" onclick="toggleFinding(this)">
+          <span class="severity-badge sev-med">Medium</span>
+          <span class="finding-title">[Issue Title — e.g., Inconsistent button styles across screens]</span>
+          <span class="finding-heuristic">H4 · Consistency</span>
+          <span style="color:var(--muted);font-size:0.8rem;margin-left:0.5rem;">▼</span>
+        </div>
+        <div class="finding-body">
+          <p><strong style="color:var(--white)">Description:</strong> Describe the inconsistency issue here. Which screens had different button styles and how did that confuse participants?</p>
+          <p><strong style="color:var(--white)">Heuristic Violated:</strong> Nielsen Heuristic #4 — Consistency and standards. Users should not have to wonder whether different words, situations, or actions mean the same thing.</p>
+          <div class="rec-box">
+            <strong>Recommendation:</strong> Establish and enforce a design system or style guide for all interactive components across the prototype.
+          </div>
+        </div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-header" onclick="toggleFinding(this)">
+          <span class="severity-badge sev-low">Low</span>
+          <span class="finding-title">[Issue Title — e.g., Small tap targets on mobile view]</span>
+          <span class="finding-heuristic">H8 · Aesthetics</span>
+          <span style="color:var(--muted);font-size:0.8rem;margin-left:0.5rem;">▼</span>
+        </div>
+        <div class="finding-body">
+          <p><strong style="color:var(--white)">Description:</strong> Describe the tap-target or aesthetic issue here. Minor but noted by multiple participants.</p>
+          <p><strong style="color:var(--white)">Heuristic Violated:</strong> Nielsen Heuristic #8 — Aesthetic and minimalist design. Irrelevant information and poor spatial layout compete with relevant information and reduce relative visibility.</p>
+          <div class="rec-box">
+            <strong>Recommendation:</strong> Increase minimum touch target sizes to at least 44×44px and increase spacing between interactive elements.
+          </div>
+        </div>
+      </div>
+
+      <!-- DISCUSSION -->
+      <div class="card" style="margin-top:2rem;">
+        <h3>Discussion of Findings</h3>
+        <p>
+          Replace this paragraph with your group's discussion. Explain the overall pattern of usability issues, 
+          connect them to the heuristics evaluated, and reflect on how they affected users during testing.
+          Discuss which issues were most critical and how they impacted the overall user experience. 
+          Reference your task completion rates and satisfaction scores to support your analysis.
+        </p>
+        <p style="margin-top:0.75rem;">
+          Discuss any surprising findings — issues that were not anticipated during design but emerged during 
+          actual user testing. Explain any discrepancies between the heuristic evaluation results (expert-driven) 
+          and the usability testing results (user-driven).
+        </p>
+      </div>
+
+      <!-- HEURISTIC REFERENCE -->
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:var(--white);margin:2rem 0 0.5rem;font-size:1.1rem;">Nielsen's 10 Usability Heuristics — Reference</h3>
+      <div class="heuristic-grid">
+        <div class="heuristic-chip"><div class="heuristic-num">01</div><div class="heuristic-name">Visibility of System Status</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">02</div><div class="heuristic-name">Match Between System and Real World</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">03</div><div class="heuristic-name">User Control and Freedom</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">04</div><div class="heuristic-name">Consistency and Standards</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">05</div><div class="heuristic-name">Error Prevention</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">06</div><div class="heuristic-name">Recognition Rather Than Recall</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">07</div><div class="heuristic-name">Flexibility and Efficiency</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">08</div><div class="heuristic-name">Aesthetic and Minimalist Design</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">09</div><div class="heuristic-name">Help Users Recognize & Recover from Errors</div></div>
+        <div class="heuristic-chip"><div class="heuristic-num">10</div><div class="heuristic-name">Help and Documentation</div></div>
+      </div>
+
+      <!-- PDF DOWNLOAD -->
+      <div class="btn-row">
+        <a href="Heuristic-Evaluation-Workbook.pdf" class="btn btn-primary" target="_blank">
+          📄 View Full Heuristic Evaluation Workbook (PDF)
+        </a>
+        <a href="#data" class="btn btn-outline">
+          ← Back to Data Gathering
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       PROTOTYPE WALKTHROUGH (Optional)
+  ═══════════════════════════════════════ -->
+  <section id="walkthrough" class="section fade-in">
+    <div class="container">
+      <p class="section-eyebrow">Optional · Prototype Walkthrough</p>
+      <h2 class="section-title">Walkthrough</h2>
+      <p class="section-desc">A guided overview of the prototype's key screens and user flows evaluated during testing.</p>
+
+      <div class="grid-2" style="align-items:start;">
+        <div class="walkthrough-steps">
+          <div class="step">
+            <div class="step-dot"></div>
+            <div class="step-number">Screen 01</div>
+            <h4>[Screen Name — e.g., Login / Landing Page]</h4>
+            <p>Describe what the user sees on this screen, its purpose, and any notable UI elements. Replace this with your actual prototype description.</p>
+            <div class="screen-thumb">
+              <img src="screen1.png" alt="Screen 1" onerror="this.style.display='none';this.parentElement.style.display='flex';this.parentElement.innerHTML='🖼 Screenshot: Login Screen'">
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-dot"></div>
+            <div class="step-number">Screen 02</div>
+            <h4>[Screen Name — e.g., Dashboard]</h4>
+            <p>Describe the dashboard or main screen. Note what key actions are available here and how users navigated during testing.</p>
+            <div class="screen-thumb">
+              <img src="screen2.png" alt="Screen 2" onerror="this.style.display='none';this.parentElement.style.display='flex';this.parentElement.innerHTML='🖼 Screenshot: Dashboard'">
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-dot"></div>
+            <div class="step-number">Screen 03</div>
+            <h4>[Screen Name — e.g., Form / Input Screen]</h4>
+            <p>Describe the form or data-entry screen. This screen was most often the source of usability issues during testing.</p>
+            <div class="screen-thumb">
+              <img src="screen3.png" alt="Screen 3" onerror="this.style.display='none';this.parentElement.style.display='flex';this.parentElement.innerHTML='🖼 Screenshot: Form Screen'">
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-dot" style="background:var(--good);box-shadow:0 0 0 2px var(--good);"></div>
+            <div class="step-number" style="color:var(--good)">Screen 04</div>
+            <h4>[Screen Name — e.g., Confirmation / Success Screen]</h4>
+            <p>Describe the final screen in the user flow. Was feedback clear enough? This was flagged during heuristic evaluation.</p>
+            <div class="screen-thumb">
+              <img src="screen4.png" alt="Screen 4" onerror="this.style.display='none';this.parentElement.style.display='flex';this.parentElement.innerHTML='🖼 Screenshot: Confirmation Screen'">
+            </div>
+          </div>
+        </div>
+
+        <!-- VIDEO DEMO SECTION -->
+        <div>
+          <div class="card" style="margin-bottom:1.25rem;">
+            <h3>🎬 Video Demonstration</h3>
+            <p>A screen recording demonstration of the prototype's complete user flow, narrated by the group.</p>
+            <div class="video-placeholder">
+              <div class="play-btn" onclick="alert('Replace this with an embedded video or link to your demo.')">▶</div>
+              <p style="font-size:0.8rem;">Click to play demonstration video</p>
+              <p style="font-size:0.72rem;color:var(--border)">Replace with &lt;iframe&gt; or &lt;video&gt; tag</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>🗺️ User Flow Summary</h3>
+            <p>The prototype supports the following primary user flow tested during the evaluation sessions:</p>
+            <div style="margin-top:1rem;">
+              <div class="instrument-item">
+                <div class="instrument-icon icon-blue" style="font-size:0.8rem;font-weight:700;color:#93c5fd;">1</div>
+                <div><div class="instrument-label">User opens the system</div></div>
+              </div>
+              <div class="instrument-item">
+                <div class="instrument-icon icon-purple" style="font-size:0.8rem;font-weight:700;color:#c4b5fd;">2</div>
+                <div><div class="instrument-label">[Describe step 2]</div></div>
+              </div>
+              <div class="instrument-item">
+                <div class="instrument-icon icon-cyan" style="font-size:0.8rem;font-weight:700;color:#67e8f9;">3</div>
+                <div><div class="instrument-label">[Describe step 3]</div></div>
+              </div>
+              <div class="instrument-item">
+                <div class="instrument-icon icon-green" style="font-size:0.8rem;font-weight:700;color:#6ee7b7;">4</div>
+                <div><div class="instrument-label">[Describe step 4]</div></div>
+              </div>
+              <div class="instrument-item">
+                <div class="instrument-icon icon-blue" style="font-size:0.8rem;font-weight:700;color:#93c5fd;">5</div>
+                <div><div class="instrument-label">Task complete / System confirms</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       REFLECTIONS (Optional)
+  ═══════════════════════════════════════ -->
+  <section id="reflections" class="section alt-bg fade-in">
+    <div class="container">
+      <p class="section-eyebrow">Optional · Reflections</p>
+      <h2 class="section-title">Team Reflections</h2>
+      <p class="section-desc">Personal insights from each group member on the evaluation process, challenges, and learnings.</p>
+
+      <div class="grid-2">
+        <div class="reflection-card">
+          <div class="reflection-text">
+            Replace this with your personal reflection on the project. What did you learn from conducting the heuristic evaluation? What was challenging? How has this process changed how you think about user interface design?
+          </div>
+          <div class="reflection-author">
+            John Michael Belmonte <span>· Lead Evaluator</span>
+          </div>
+        </div>
+        <div class="reflection-card">
+          <div class="reflection-text">
+            Replace this with your personal reflection. Focus on the usability testing experience — what surprised you about how real users interacted with the prototype? What would you design differently?
+          </div>
+          <div class="reflection-author">
+            Jessica Vipinoso <span>· UX Researcher</span>
+          </div>
+        </div>
+        <div class="reflection-card">
+          <div class="reflection-text">
+            Share your reflection on building the reporting site itself — how did structuring the information help you understand the evaluation findings more deeply? What technical challenges did you face?
+          </div>
+          <div class="reflection-author">
+            Jommel Pahuwayan <span>· Frontend Developer</span>
+          </div>
+        </div>
+        <div class="reflection-card">
+          <div class="reflection-text">
+            Reflect on the data analysis phase. How did you interpret the qualitative and quantitative findings? What patterns did you notice across the different evaluation methods?
+          </div>
+          <div class="reflection-author">
+            Earl Francis Salvo <span>· Data Analyst</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Findings -->
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:var(--white);margin:3rem 0 1rem;font-size:1.1rem;">Additional Findings</h3>
+      <div class="grid-3">
+        <div class="card">
+          <h3>💡 Positive Feedback</h3>
+          <p>Describe any positive aspects noted by participants during usability testing — features they appreciated, interactions they found intuitive, or design elements that worked well.</p>
+        </div>
+        <div class="card">
+          <h3>🔄 Unexpected Patterns</h3>
+          <p>Describe any surprising behavior or feedback that emerged during testing — patterns you did not anticipate during the heuristic evaluation or prototype design phase.</p>
+        </div>
+        <div class="card">
+          <h3>🚀 Future Improvements</h3>
+          <p>Beyond the immediate recommendations, describe longer-term design improvements or features that would significantly improve the prototype's usability in a future iteration.</p>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <a href="Heuristic-Evaluation-Workbook.pdf" class="btn btn-primary" target="_blank">📄 Download Full Report (PDF)</a>
+        <a href="#home" class="btn btn-outline">↑ Back to Top</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCROLL TO TOP -->
+  <button id="scrollTop" title="Go to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- FOOTER -->
+  <footer>
+    <p><strong>Partido State University</strong> · College of Engineering and Computational Sciences · Computational Sciences Department</p>
+    <p style="margin-top:0.35rem;">HCI2 – Human-Computer Interaction · Final Project: Web Reporting Site · Group 4</p>
+  </footer>
+
+  <script>
+    // Scroll-to-top visibility
+    const scrollBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+
+    // Accordion toggle
+    function toggleAccordion(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('open');
+    }
+
+    // Finding expand/collapse
+    function toggleFinding(header) {
+      const body = header.nextElementSibling;
+      body.classList.toggle('open');
+      const chevron = header.querySelector('span:last-child');
+      chevron.textContent = body.classList.contains('open') ? '▲' : '▼';
+    }
+
+    // Fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Active nav link on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(sec => {
+        if (window.scrollY >= sec.offsetTop - 100) current = sec.getAttribute('id');
+      });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + current ? 'var(--white)' : '';
+        a.style.background = a.getAttribute('href') === '#' + current ? 'var(--surface2)' : '';
+      });
+    });
+  </script>
+</body>
+</html>
